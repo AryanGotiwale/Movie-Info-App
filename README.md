@@ -55,27 +55,26 @@ A full-stack movie web application with JWT authentication, role-based access co
 ## 📸 Screenshots
 
 ### Home Page
-![Home Page](screenshots/home.png)
+![Home Page](/frontend/screenshots/image2.png)
 *Browse through IMDb Top 250 movies with pagination*
 
 ### Search & Sort
-![Search Page](screenshots/search.png)
+![Search Page](/frontend/screenshots/image1.png)
 *Search and sort movies by various criteria*
 
 ### Admin Dashboard
-![Admin Dashboard](screenshots/admin.png)
+![Admin Dashboard](/frontend/screenshots/AdminDash1.png)
 *Admin interface for managing movies*
 
 ### Authentication
-![Login Page](screenshots/login.png)
+![Login Page](/frontend/screenshots/Login.png)
 *Secure JWT-based authentication*
 
-> Note: Add screenshots to a `screenshots/` folder in your repository
 
 ## 🚀 Live Demo
 
-- **Frontend:** [https://your-app.vercel.app](https://your-app.vercel.app)
-- **Backend API:** [https://your-backend.railway.app](https://your-backend.railway.app)
+- **Frontend:** [https://movieinfoapp1.netlify.app](https://movieinfoapp1.netlify.app)
+- **Backend API:** [https://movie-info-app-production.up.railway.app](https://movie-info-app-production.up.railway.app)
 
 ### Test Credentials
 
