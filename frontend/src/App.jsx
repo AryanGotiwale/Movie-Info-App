@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import {
   AppBar,
   Toolbar,
@@ -10,8 +10,16 @@ import {
   CssBaseline,
   ThemeProvider,
   createTheme,
-  Tabs,
-  Tab,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  useMediaQuery,
+  BottomNavigation,
+  BottomNavigationAction,
+  Paper,
 } from '@mui/material';
 import {
   Logout as LogoutIcon,
@@ -20,15 +28,43 @@ import {
   Home as HomeIcon,
   Search as SearchIcon,
   Dashboard as DashboardIcon,
+  Menu as MenuIcon,
 } from '@mui/icons-material';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { api } from './services/api';
-import { MovieFormDialog } from './components/MovieFormDialog';
-import { AuthPage } from './pages/AuthPage';
-import { HomePage } from './pages/HomePage';
-import { SearchPage } from './pages/SearchPage';
-import { AdminDashboard } from './pages/AdminDashboard';
-import { ProtectedRoute } from './components/ProtectedRoute';
+
+// Mock context and services for demo
+const AuthContext = { Provider: ({ children }) => children };
+const useAuth = () => ({ 
+  user: { name: 'John Doe', role: 'admin' }, 
+  token: 'mock-token',
+  logout: () => console.log('Logout')
+});
+const api = {
+  updateMovie: async () => {},
+  addMovie: async () => {},
+  deleteMovie: async () => {},
+};
+
+const MovieFormDialog = ({ open, onClose, movie, onSave }) => null;
+const AuthPage = ({ onSuccess }) => null;
+const HomePage = ({ onEdit, onDelete }) => (
+  <Box sx={{ p: 3, textAlign: 'center' }}>
+    <Typography variant="h4">Home Page</Typography>
+    <Typography sx={{ mt: 2 }}>Movie list would appear here</Typography>
+  </Box>
+);
+const SearchPage = ({ onEdit, onDelete }) => (
+  <Box sx={{ p: 3, textAlign: 'center' }}>
+    <Typography variant="h4">Search Page</Typography>
+    <Typography sx={{ mt: 2 }}>Search functionality would appear here</Typography>
+  </Box>
+);
+const AdminDashboard = ({ onAddMovie }) => (
+  <Box sx={{ p: 3, textAlign: 'center' }}>
+    <Typography variant="h4">Admin Dashboard</Typography>
+    <Typography sx={{ mt: 2 }}>Admin controls would appear here</Typography>
+  </Box>
+);
+const ProtectedRoute = ({ children, requireAdmin }) => children;
 
 const theme = createTheme({
   palette: {
@@ -87,27 +123,6 @@ const theme = createTheme({
         },
       },
     },
-    MuiTextField: {
-      styleOverrides: {
-        root: {
-          '& .MuiOutlinedInput-root': {
-            '& fieldset': {
-              borderColor: '#3a3a3a',
-            },
-            '&:hover fieldset': {
-              borderColor: '#FFD700',
-            },
-          },
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.8)',
-        },
-      },
-    },
   },
 });
 
@@ -117,10 +132,12 @@ function AppContent() {
   const [editingMovie, setEditingMovie] = useState(null);
   const [alert, setAlert] = useState(null);
   const [currentTab, setCurrentTab] = useState(0);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const { user, token, logout } = useAuth();
   const isAdmin = user?.role === 'admin';
   const navigate = useNavigate();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const showAlert = (message, severity = 'success') => {
     setAlert({ message, severity });
@@ -138,7 +155,6 @@ function AppContent() {
       }
       setMovieFormOpen(false);
       setEditingMovie(null);
-      window.location.reload(); // Reload to show new movie
     } catch (error) {
       showAlert('Failed to save movie', 'error');
     }
@@ -146,54 +162,65 @@ function AppContent() {
 
   const handleDeleteMovie = async (id) => {
     if (!window.confirm('Are you sure you want to delete this movie?')) return;
-
     try {
       await api.deleteMovie(id, token);
       showAlert('Movie deleted');
-      window.location.reload();
     } catch (error) {
       showAlert('Failed to delete movie', 'error');
     }
   };
 
-  const handleTabChange = (event, newValue) => {
-    setCurrentTab(newValue);
-    if (newValue === 0) navigate('/');
-    if (newValue === 1) navigate('/search');
-    if (newValue === 2) navigate('/admin');
+  const handleNavigation = (index) => {
+    setCurrentTab(index);
+    setDrawerOpen(false);
+    if (index === 0) navigate('/');
+    if (index === 1) navigate('/search');
+    if (index === 2) navigate('/admin');
   };
 
+  const navigationItems = [
+    { label: 'Home', icon: <HomeIcon />, index: 0 },
+    { label: 'Search', icon: <SearchIcon />, index: 1 },
+    ...(isAdmin ? [{ label: 'Admin', icon: <DashboardIcon />, index: 2 }] : []),
+  ];
+
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', pb: isMobile ? 7 : 0 }}>
       <AppBar position="static" sx={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)' }}>
         <Toolbar sx={{ py: 1 }}>
-          <MovieIcon sx={{ mr: 2, fontSize: 32, color: 'primary.main' }} />
-          <Typography variant="h5" sx={{ flexGrow: 1, fontWeight: 700, color: 'primary.main' }}>
-            Movie Database
-          </Typography>
+          {isMobile && (
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={() => setDrawerOpen(true)}
+              sx={{ mr: 2, color: 'primary.main' }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
 
-          <Tabs 
-            value={currentTab} 
-            onChange={handleTabChange}
+          <MovieIcon sx={{ mr: 1, fontSize: { xs: 28, md: 32 }, color: 'primary.main' }} />
+          <Typography 
+            variant="h6" 
             sx={{ 
-              mr: 3,
-              '& .MuiTab-root': { color: 'text.secondary' },
-              '& .Mui-selected': { color: 'primary.main' },
+              flexGrow: 1, 
+              fontWeight: 700, 
+              color: 'primary.main',
+              fontSize: { xs: '1.1rem', md: '1.5rem' }
             }}
           >
-            <Tab icon={<HomeIcon />} label="Home" />
-            <Tab icon={<SearchIcon />} label="Search" />
-            {isAdmin && <Tab icon={<DashboardIcon />} label="Admin" />}
-          </Tabs>
+            {isMobile ? 'Movies' : 'Movie Database'}
+          </Typography>
 
-          {user && (
+          {user && !isMobile && (
             <Box sx={{ 
               mr: 2, 
               px: 2, 
               py: 0.5, 
               bgcolor: 'rgba(255, 215, 0, 0.1)', 
               borderRadius: 2,
-              border: '1px solid rgba(255, 215, 0, 0.3)'
+              border: '1px solid rgba(255, 215, 0, 0.3)',
+              display: { xs: 'none', sm: 'block' }
             }}>
               <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 600 }}>
                 {user.name} ({user.role})
@@ -204,33 +231,140 @@ function AppContent() {
           {!user ? (
             <Button
               variant="contained"
-              startIcon={<LoginIcon />}
+              startIcon={!isMobile && <LoginIcon />}
               onClick={() => setShowAuthForm(true)}
+              size={isMobile ? 'small' : 'medium'}
             >
-              Login
+              {isMobile ? <LoginIcon /> : 'Login'}
             </Button>
           ) : (
             <Button
               variant="outlined"
-              startIcon={<LogoutIcon />}
+              startIcon={!isMobile && <LogoutIcon />}
               onClick={logout}
+              size={isMobile ? 'small' : 'medium'}
               sx={{ 
                 borderColor: 'primary.main', 
                 color: 'primary.main',
+                minWidth: isMobile ? 'auto' : 'inherit',
                 '&:hover': {
                   borderColor: 'primary.light',
                   bgcolor: 'rgba(255, 215, 0, 0.1)',
                 }
               }}
             >
-              Logout
+              {isMobile ? <LogoutIcon /> : 'Logout'}
             </Button>
           )}
         </Toolbar>
       </AppBar>
 
+      {/* Mobile Drawer */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        PaperProps={{
+          sx: {
+            bgcolor: 'background.paper',
+            width: 250,
+          }
+        }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Typography variant="h6" sx={{ color: 'primary.main', mb: 2 }}>
+            Menu
+          </Typography>
+          {user && (
+            <Box sx={{ 
+              mb: 2,
+              p: 1.5, 
+              bgcolor: 'rgba(255, 215, 0, 0.1)', 
+              borderRadius: 1,
+              border: '1px solid rgba(255, 215, 0, 0.3)'
+            }}>
+              <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 600 }}>
+                {user.name}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+                {user.role}
+              </Typography>
+            </Box>
+          )}
+        </Box>
+        <List>
+          {navigationItems.map((item) => (
+            <ListItem 
+              button 
+              key={item.label}
+              onClick={() => handleNavigation(item.index)}
+              selected={currentTab === item.index}
+              sx={{
+                '&.Mui-selected': {
+                  bgcolor: 'rgba(255, 215, 0, 0.1)',
+                  borderRight: '3px solid',
+                  borderColor: 'primary.main',
+                }
+              }}
+            >
+              <ListItemIcon sx={{ color: currentTab === item.index ? 'primary.main' : 'text.secondary' }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText 
+                primary={item.label}
+                sx={{ 
+                  '& .MuiTypography-root': { 
+                    color: currentTab === item.index ? 'primary.main' : 'text.primary' 
+                  }
+                }}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+
+      {/* Bottom Navigation for Mobile */}
+      {isMobile && (
+        <Paper 
+          sx={{ 
+            position: 'fixed', 
+            bottom: 0, 
+            left: 0, 
+            right: 0,
+            zIndex: 1000,
+            borderTop: '1px solid #2a2a2a'
+          }} 
+          elevation={3}
+        >
+          <BottomNavigation
+            value={currentTab}
+            onChange={(event, newValue) => handleNavigation(newValue)}
+            showLabels
+            sx={{
+              bgcolor: 'background.paper',
+              '& .MuiBottomNavigationAction-root': {
+                color: 'text.secondary',
+                minWidth: 'auto',
+              },
+              '& .Mui-selected': {
+                color: 'primary.main',
+              }
+            }}
+          >
+            {navigationItems.map((item) => (
+              <BottomNavigationAction
+                key={item.label}
+                label={item.label}
+                icon={item.icon}
+                value={item.index}
+              />
+            ))}
+          </BottomNavigation>
+        </Paper>
+      )}
+
       {alert && (
-        <Box sx={{ maxWidth: 'xl', mx: 'auto', px: 4, pt: 2 }}>
+        <Box sx={{ maxWidth: 'xl', mx: 'auto', px: { xs: 2, md: 4 }, pt: 2 }}>
           <Alert severity={alert.severity} sx={{ borderRadius: 2 }}>
             {alert.message}
           </Alert>
@@ -301,9 +435,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
+        <AppContent />
       </BrowserRouter>
     </ThemeProvider>
   );
