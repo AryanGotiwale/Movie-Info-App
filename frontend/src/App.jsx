@@ -30,41 +30,14 @@ import {
   Dashboard as DashboardIcon,
   Menu as MenuIcon,
 } from '@mui/icons-material';
-
-// Mock context and services for demo
-const AuthContext = { Provider: ({ children }) => children };
-const useAuth = () => ({ 
-  user: { name: 'John Doe', role: 'admin' }, 
-  token: 'mock-token',
-  logout: () => console.log('Logout')
-});
-const api = {
-  updateMovie: async () => {},
-  addMovie: async () => {},
-  deleteMovie: async () => {},
-};
-
-const MovieFormDialog = ({ open, onClose, movie, onSave }) => null;
-const AuthPage = ({ onSuccess }) => null;
-const HomePage = ({ onEdit, onDelete }) => (
-  <Box sx={{ p: 3, textAlign: 'center' }}>
-    <Typography variant="h4">Home Page</Typography>
-    <Typography sx={{ mt: 2 }}>Movie list would appear here</Typography>
-  </Box>
-);
-const SearchPage = ({ onEdit, onDelete }) => (
-  <Box sx={{ p: 3, textAlign: 'center' }}>
-    <Typography variant="h4">Search Page</Typography>
-    <Typography sx={{ mt: 2 }}>Search functionality would appear here</Typography>
-  </Box>
-);
-const AdminDashboard = ({ onAddMovie }) => (
-  <Box sx={{ p: 3, textAlign: 'center' }}>
-    <Typography variant="h4">Admin Dashboard</Typography>
-    <Typography sx={{ mt: 2 }}>Admin controls would appear here</Typography>
-  </Box>
-);
-const ProtectedRoute = ({ children, requireAdmin }) => children;
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { api } from './services/api';
+import { MovieFormDialog } from './components/MovieFormDialog';
+import { AuthPage } from './pages/AuthPage';
+import { HomePage } from './pages/HomePage';
+import { SearchPage } from './pages/SearchPage';
+import { AdminDashboard } from './pages/AdminDashboard';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 const theme = createTheme({
   palette: {
@@ -123,6 +96,27 @@ const theme = createTheme({
         },
       },
     },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+              borderColor: '#3a3a3a',
+            },
+            '&:hover fieldset': {
+              borderColor: '#FFD700',
+            },
+          },
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.8)',
+        },
+      },
+    },
   },
 });
 
@@ -155,6 +149,7 @@ function AppContent() {
       }
       setMovieFormOpen(false);
       setEditingMovie(null);
+      window.location.reload();
     } catch (error) {
       showAlert('Failed to save movie', 'error');
     }
@@ -162,9 +157,11 @@ function AppContent() {
 
   const handleDeleteMovie = async (id) => {
     if (!window.confirm('Are you sure you want to delete this movie?')) return;
+
     try {
       await api.deleteMovie(id, token);
       showAlert('Movie deleted');
+      window.location.reload();
     } catch (error) {
       showAlert('Failed to delete movie', 'error');
     }
@@ -199,7 +196,7 @@ function AppContent() {
             </IconButton>
           )}
 
-          <MovieIcon sx={{ mr: 1, fontSize: { xs: 28, md: 32 }, color: 'primary.main' }} />
+          <MovieIcon sx={{ mr: { xs: 1, md: 2 }, fontSize: { xs: 28, md: 32 }, color: 'primary.main' }} />
           <Typography 
             variant="h6" 
             sx={{ 
@@ -220,7 +217,6 @@ function AppContent() {
               bgcolor: 'rgba(255, 215, 0, 0.1)', 
               borderRadius: 2,
               border: '1px solid rgba(255, 215, 0, 0.3)',
-              display: { xs: 'none', sm: 'block' }
             }}>
               <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 600 }}>
                 {user.name} ({user.role})
@@ -247,6 +243,7 @@ function AppContent() {
                 borderColor: 'primary.main', 
                 color: 'primary.main',
                 minWidth: isMobile ? 'auto' : 'inherit',
+                px: isMobile ? 1 : 2,
                 '&:hover': {
                   borderColor: 'primary.light',
                   bgcolor: 'rgba(255, 215, 0, 0.1)',
@@ -259,7 +256,6 @@ function AppContent() {
         </Toolbar>
       </AppBar>
 
-      {/* Mobile Drawer */}
       <Drawer
         anchor="left"
         open={drawerOpen}
@@ -323,7 +319,6 @@ function AppContent() {
         </List>
       </Drawer>
 
-      {/* Bottom Navigation for Mobile */}
       {isMobile && (
         <Paper 
           sx={{ 
@@ -364,7 +359,7 @@ function AppContent() {
       )}
 
       {alert && (
-        <Box sx={{ maxWidth: 'xl', mx: 'auto', px: { xs: 2, md: 4 }, pt: 2 }}>
+        <Box sx={{ maxWidth: '1400px', mx: 'auto', px: { xs: 2, md: 4 }, pt: 2 }}>
           <Alert severity={alert.severity} sx={{ borderRadius: 2 }}>
             {alert.message}
           </Alert>
@@ -435,7 +430,9 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <AppContent />
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>
   );

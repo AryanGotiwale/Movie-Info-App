@@ -56,9 +56,13 @@ export const AuthPage = ({ onSuccess }) => {
   };
 
   return (
-
-    
-    <Box sx={{ maxWidth: 450, mx: 'auto', mt: 4 }}>
+    <Box sx={{ 
+      width: '100%',
+      maxWidth: { xs: '100%', sm: 450 },
+      mx: 'auto',
+      px: { xs: 2, sm: 0 },
+      mt: { xs: 2, sm: 4 }
+    }}>
       <Card sx={{ 
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.6)',
         border: '1px solid #2a2a2a',
@@ -70,43 +74,50 @@ export const AuthPage = ({ onSuccess }) => {
           py: 2,
           px: 3,
         }}>
-          <Typography variant="h5" sx={{ fontWeight: 700, color: 'primary.main' }}>
+          <Typography 
+            variant="h5" 
+            sx={{ 
+              fontWeight: 700, 
+              color: 'primary.main',
+              fontSize: { xs: '1.25rem', md: '1.5rem' }
+            }}
+          >
             {isLogin ? '🎬 Login' : '🎬 Register'}
           </Typography>
         </Box>
-        <CardContent sx={{ p: 3 }}>
+        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
           <form onSubmit={handleSubmit}>
-           {!isLogin && (
-  <>
-    <TextField
-      fullWidth
-      label="Name"
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-      margin="normal"
-      required
-      sx={{ bgcolor: 'background.paper' }}
-    />
-    <FormControl fullWidth margin="normal">
-      <InputLabel>Role</InputLabel>
-      <Select
-        value={role}
-        label="Role"
-        onChange={(e) => setRole(e.target.value)}
-        sx={{ bgcolor: 'background.paper' }}
-      >
-        <MenuItem value="user">User</MenuItem>
-        <MenuItem value="admin">Admin</MenuItem>
-      </Select>
-    </FormControl>
-    <Alert severity="info" sx={{ mt: 1 }}>
-      <Typography variant="caption">
-        Note: Role selection is enabled for demo purposes. In production, admin roles would be assigned manually.
-      </Typography>
-    </Alert>
-  </>
-)}
+            {!isLogin && (
+              <>
+                <TextField
+                  fullWidth
+                  label="Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  margin="normal"
+                  required
+                  sx={{ bgcolor: 'background.paper' }}
+                />
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Role</InputLabel>
+                  <Select
+                    value={role}
+                    label="Role"
+                    onChange={(e) => setRole(e.target.value)}
+                    sx={{ bgcolor: 'background.paper' }}
+                  >
+                    <MenuItem value="user">User</MenuItem>
+                    <MenuItem value="admin">Admin</MenuItem>
+                  </Select>
+                </FormControl>
+                <Alert severity="info" sx={{ mt: 1, fontSize: { xs: '0.75rem', md: '0.875rem' } }}>
+                  <Typography variant="caption">
+                    Note: Role selection is enabled for demo purposes. In production, admin roles would be assigned manually.
+                  </Typography>
+                </Alert>
+              </>
+            )}
             <TextField
               fullWidth
               label="Email"
@@ -132,19 +143,28 @@ export const AuthPage = ({ onSuccess }) => {
               variant="contained"
               type="submit"
               size="large"
-              sx={{ mt: 3, py: 1.5, fontWeight: 700, fontSize: '1rem' }}
+              sx={{ 
+                mt: 3, 
+                py: 1.5, 
+                fontWeight: 700, 
+                fontSize: { xs: '0.9rem', md: '1rem' }
+              }}
             >
               {isLogin ? 'Login' : 'Register'}
             </Button>
           </form>
         </CardContent>
-        <CardActions sx={{ px: 3, pb: 2, justifyContent: 'center' }}>
+        <CardActions sx={{ px: { xs: 2, sm: 3 }, pb: 2, justifyContent: 'center' }}>
           <Button 
             onClick={() => {
               setIsLogin(!isLogin);
               setError('');
             }}
-            sx={{ color: 'primary.main', fontWeight: 600 }}
+            sx={{ 
+              color: 'primary.main', 
+              fontWeight: 600,
+              fontSize: { xs: '0.8rem', md: '0.875rem' }
+            }}
           >
             {isLogin ? 'Need an account? Register here' : 'Already have an account? Login'}
           </Button>
