@@ -209,6 +209,44 @@ function AppContent() {
             {isMobile ? 'Movies' : 'Movie Database'}
           </Typography>
 
+          {/* Desktop Tabs - Show on larger screens */}
+          {!isMobile && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Button
+                startIcon={<HomeIcon />}
+                onClick={() => handleNavigation(0)}
+                sx={{
+                  color: currentTab === 0 ? 'primary.main' : 'text.secondary',
+                  fontWeight: currentTab === 0 ? 700 : 400,
+                }}
+              >
+                Home
+              </Button>
+              <Button
+                startIcon={<SearchIcon />}
+                onClick={() => handleNavigation(1)}
+                sx={{
+                  color: currentTab === 1 ? 'primary.main' : 'text.secondary',
+                  fontWeight: currentTab === 1 ? 700 : 400,
+                }}
+              >
+                Search
+              </Button>
+              {isAdmin && (
+                <Button
+                  startIcon={<DashboardIcon />}
+                  onClick={() => handleNavigation(2)}
+                  sx={{
+                    color: currentTab === 2 ? 'primary.main' : 'text.secondary',
+                    fontWeight: currentTab === 2 ? 700 : 400,
+                  }}
+                >
+                  Admin
+                </Button>
+              )}
+            </Box>
+          )}
+
           {user && !isMobile && (
             <Box sx={{ 
               mr: 2, 
