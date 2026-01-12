@@ -80,7 +80,7 @@ A full-stack movie web application with JWT authentication, role-based access co
 
 **Admin Account:**
 - Register with any email and select "Admin" role during registration
-- Or use: `admin@example.com` / `admin123` (if seeded)
+- Or use: `aryan@gmail.com` / `12345` (if seeded)
 
 **Regular User:**
 - Register with any email and select "User" role
