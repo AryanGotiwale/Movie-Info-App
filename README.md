@@ -70,7 +70,6 @@ A full-stack movie web application with JWT authentication, role-based access co
 ![Login Page](/frontend/screenshots/Login.png)
 *Secure JWT-based authentication*
 
-> Note: Add screenshots to a `screenshots/` folder in your repository
 
 ## 🚀 Live Demo
 
