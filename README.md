@@ -55,19 +55,19 @@ A full-stack movie web application with JWT authentication, role-based access co
 ## 📸 Screenshots
 
 ### Home Page
-![Home Page](screenshots/image2.png)
+![Home Page](/frontend/screenshots/image2.png)
 *Browse through IMDb Top 250 movies with pagination*
 
 ### Search & Sort
-![Search Page](screenshots/image1.png)
+![Search Page](/frontend/screenshots/image1.png)
 *Search and sort movies by various criteria*
 
 ### Admin Dashboard
-![Admin Dashboard](screenshots/AdminDash1.png)
+![Admin Dashboard](/frontend/screenshots/AdminDash1.png)
 *Admin interface for managing movies*
 
 ### Authentication
-![Login Page](screenshots/Login.png)
+![Login Page](/frontend/screenshots/Login.png)
 *Secure JWT-based authentication*
 
 > Note: Add screenshots to a `screenshots/` folder in your repository
